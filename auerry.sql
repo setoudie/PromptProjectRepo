@@ -29,11 +29,12 @@ CREATE TABLE IF NOT EXISTS Prompts(
     id SERIAL PRIMARY KEY,
     category VARCHAR(30),
     prompt_content TEXT,
-    price FLOAT,
-    note INTEGER,
+    price FLOAT DEFAULT 1000,
+    note INTEGER CHECK (note >= -10 AND note <= 10) DEFAULT 0,
     status VARCHAR(10) CHECK (status IN ('active', 'inactive', 'pending', 'review', 'reminder', 'delete')) DEFAULT 'pending',
+    creat_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id INTEGER,
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
 -- Creation de la table Notes
@@ -42,8 +43,8 @@ CREATE TABLE IF NOT EXISTS Notes(
     prompt_id  INTEGER,
     user_id INTEGER,
     note_value FLOAT,
-    FOREIGN KEY (prompt_id) REFERENCES Prompts(id),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    FOREIGN KEY (prompt_id) REFERENCES Prompts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
 
 -- Creation de la table Votes
@@ -52,6 +53,6 @@ CREATE TABLE IF NOT EXISTS Votes(
     prompt_id INTEGER,
     user_id INTEGER,
     vote_value VARCHAR(10),
-    FOREIGN KEY (prompt_id) REFERENCES Prompts(id),
-    FOREIGN KEY (user_id) REFERENCES Users(id)
+    FOREIGN KEY (prompt_id) REFERENCES Prompts(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
 );
