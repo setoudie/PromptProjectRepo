@@ -11,8 +11,5 @@ def get_db_connection(db_name):
     PASS = "wrongpassword"
 
     # Connection to database
-    db = psycopg2.connect(database=db_name,
-                          user=USER,
-                          host=HOST,
-                          password=PASS)
+    db = psycopg2.connect(database=db_name, user=USER, host=HOST, password=PASS)
     return db
