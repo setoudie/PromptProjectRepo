@@ -1,8 +1,7 @@
-from flask import Blueprint
+from flask import Blueprint, jsonify
+from werkzeug.security import generate_password_hash, check_password_hash
+from querry import allUsers
 
 users_bp = Blueprint('users', __name__)
 
 
-@users_bp.route('/list')
-def user_list():
-    return 'users list'
