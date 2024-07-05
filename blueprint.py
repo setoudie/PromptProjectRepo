@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_jwt_extended import JWTManager
 from authentification_bp import auth_bp
 from users_bp import users_bp
 from admins_bp import admin_bp
@@ -8,6 +9,9 @@ from prompts_bp import prompts_bp
 
 def create_app():
     app = Flask(__name__)
+
+    app.config['JWT_SECRET_KEY'] = 'fd06cd22f58b414a91c68a59ea4f351e'
+    jwt = JWTManager(app)
 
     # Enregistrer les blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
