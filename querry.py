@@ -33,11 +33,11 @@ all_users_usernames = curs.fetchall()
 curs.execute(select_all_users_hashed_password)
 all_users_hashed_pass = curs.fetchall()
 
-# Select all admin's usernames
+# Select all admins usernames
 curs.execute(select_all_admin_usernames)
 all_admins_usernames = curs.fetchall()
 
-# Selecting all admin's hashed password
+# Selecting all admins hashed password
 curs.execute(select_all_hashed_admins_password)
 all_admins_hashed_pass = curs.fetchall()
 
@@ -46,4 +46,7 @@ all_users_usernames_list = transform_tuple_to_list(all_users_usernames)
 all_admins_usernames_list = transform_tuple_to_list(all_admins_usernames)
 all_admins_hashed_pass_list = transform_tuple_to_list(all_admins_hashed_pass)
 
-print(all_admins_hashed_pass_list)
+curs.execute('SELECT * FROM admins WHERE username = %s AND hashed_password = %s', ('setoudie', 'try'))
+admin = curs.fetchone()
+
+print(admin)
