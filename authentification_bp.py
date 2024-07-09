@@ -1,5 +1,6 @@
+from functools import wraps
 from flask import Blueprint, request, jsonify
-from flask_jwt_extended import create_access_token
+from flask_jwt_extended import create_access_token, decode_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from werkzeug.security import generate_password_hash, check_password_hash
 from db_conn import get_db_connection
 from querry import all_users_hashed_pass_list, all_users_usernames_list
@@ -48,7 +49,21 @@ def login():
     conn.close()
     return jsonify({'msg': 'Invalid credentials'}), 401
 
+# Fonction pour verifier le role de chaque personne
+def role_required(role):
+    def wrapper(fn):
+        @wraps(fn)
+        def decorator(*args, **kwargs):
+            verify_jwt_in_request()
+            user_info = get_jwt_identity() # getting payload data
+            if user_info.get('role') != role:
+                return jsonify({'msg': 'Error 403 Forbidden: Permission insuffisante'}), 403
+            return fn(*args, **kwargs)
+
+        return decorator
+
+    return wrapper
 
 @auth_bp.route('/logout')
 def logout():
-    return "Page de déconnexion"
+    return jsonify(msg='logout successfuly')
