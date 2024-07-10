@@ -80,4 +80,4 @@ all_admins_hashed_pass_list = transform_tuple_to_list(all_admins_hashed_pass)
 curs.execute('SELECT * FROM admins WHERE username = %s AND hashed_password = %s', ('setoudie', 'try'))
 admin = curs.fetchone()
 
-print(all_selected_prompts)
+# print(all_selected_prompts)

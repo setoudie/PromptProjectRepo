@@ -32,14 +32,15 @@ def login():
     # Rechetrche de l'username dans la table users
     cursor.execute('SELECT * FROM users WHERE username = %s', (username,))
     user_info = cursor.fetchone()  # This is a tuple of user's information it's like to :
-    # ('id','username','firstname','lastname','hashed_password','group_id')
+    # ('username','firstname','lastname','hashed_password','group_id', 'admin_info')
     # print(admin_info)
 
     # Now we are checking that the input data (username and password ) are in our database
+    print(user_info[-3])
     try:
         for pseudo, hash_pass in zip(all_users_usernames_list, all_users_hashed_pass_list):
-            if pseudo == user_info[1] and check_password_hash(pwhash=user_info[-2], password=password):
-                payload_data = {'username': user_info[1], 'role': 'user'}
+            if pseudo == user_info[0] and check_password_hash(pwhash=user_info[-3], password=password):
+                payload_data = {'username': user_info[0], 'role': 'user'}
                 access_token = create_access_token(identity=payload_data)
                 conn.close()
                 return jsonify({'access_token': access_token}), 200
