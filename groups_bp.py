@@ -1,13 +1,27 @@
-from flask import Blueprint, jsonify
-from flask_jwt_extended import jwt_required
+from flask import Blueprint, jsonify, request
+from flask_jwt_extended import jwt_required, get_jwt_identity
 from authentification_bp import role_required
+from db_conn import get_db_connection
+
 groups_bp = Blueprint('groups', __name__)
 
+# Route creation groupe
 @groups_bp.route('/create', methods=['POST'])
 @jwt_required()
-@role_required('ad min')
+@role_required('admin')
 def creat_group():
+    group_name = request.json.get('group_name')
+
+    admin_info = get_jwt_identity()
+    username_info = admin_info.get('username')
+
+    db = get_db_connection('promptprojectdb')
+    curs = db.cursor()
+    curs.execute("""INSERT INTO groups (group_name, admin_info) VALUES (%s, %s)""", (group_name, username_info))
+    db.commit()
+    db.close()
     return jsonify(msg='Group Creer')
+
 
 @groups_bp.route('/list')
 def list_groups():
