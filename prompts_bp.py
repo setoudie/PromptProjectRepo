@@ -4,7 +4,8 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from authentification_bp import role_required
 from db_conn import get_db_connection
-from querry import transform_data_to_json, all_selected_prompts, get_prompt_owner
+from querry import transform_data_to_json, all_selected_prompts, get_prompt_owner, get_user_group_id, get_prompt_price, \
+    get_prompt_note, get_prompt_status, isInSameGroup, verif_activation
 
 prompts_bp = Blueprint('prompts', __name__)
 
@@ -25,7 +26,7 @@ def create_prompt():
     if content:
         curs.execute("""INSERT INTO prompts (prompt_content, user_info) VALUES (%s, %s)""", (content, username_user))
         db.commit()
-        db.close()
+        # db.close()
         return jsonify(msg='Prompt succesfuly create')
     else:
         return jsonify(msg='Missing values')
@@ -81,7 +82,53 @@ def prompt_asked_to_delete(id_prompt):
         return jsonify(msg=f'Error : {e}')
 
 
-# Route pour voter sur unn prompt afin de l'activer ou
+# Route pour voter sur unn prompt afin de l'activer
+@prompts_bp.route('/vote-for-activation/<int:id_prompt>', methods=['PUT', 'GET'])
+@jwt_required()
+@role_required('user')
+def vote_for_activation(id_prompt):
+    VOTING_WEIGHT = 1
+    # curs = db.cursor()
+    try:
+        initial_prompt_note = get_prompt_note(id_prompt)
+    except TypeError:
+        return jsonify(msg=f"Not prompt with id = {id_prompt}")
+
+    actual_prompt_status = get_prompt_status(id_prompt)
+
+    # Information about the logged user
+    user_logged_info = get_jwt_identity()
+    logged_user_username = user_logged_info.get('username')
+    logged_user_group = get_user_group_id(logged_user_username)
+
+    # Information about the prompt owner user
+    prompt_owner_username = get_prompt_owner(id_prompt=id_prompt)
+    prompt_owner_user_group = get_user_group_id(prompt_owner_username)
+
+    try:
+        if prompt_owner_username == logged_user_username:
+            return jsonify(msg="You can't vote your own prompt ")
+
+        if actual_prompt_status not in ['pending', 'review', 'reminder', 'delete']:
+            return jsonify(msg=f"This prompt is already {actual_prompt_status}")
+
+        if isInSameGroup(prompt_owner_username, logged_user_username):
+            vote_value = 2*VOTING_WEIGHT
+            print(prompt_owner_user_group, logged_user_group)
+        else:
+            print(prompt_owner_user_group, logged_user_group)
+            vote_value = 1*VOTING_WEIGHT
+
+        # print(vote_value)
+        new_prompt_note = initial_prompt_note + vote_value
+        curs.execute("""UPDATE prompts SET note = %s WHERE id = %s""", (new_prompt_note, id_prompt))
+        curs.execute("""INSERT INTO votes (prompt_id, user_info, vote_value) VALUES (%s, %s, %s)""", (id_prompt, logged_user_username, vote_value))
+        db.commit()
+
+        verif_activation(id=id_prompt, note=new_prompt_note, cursor=curs, database=db)
+        return jsonify(msg='Your vote is successfully save')
+    except (psycopg2.Error, Exception) as e:
+        return jsonify(msg=f"Error : {e}")
 
 # Route pour afficher tous les prompts
 @prompts_bp.route('/dashboard', methods=['GET'])

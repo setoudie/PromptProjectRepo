@@ -13,6 +13,8 @@ select_all_hashed_admins_password_querry = """SELECT hashed_password FROM admins
 select_all_prompt_info_querry = """SELECT prompt_content, user_info, price, note, status FROM prompts"""
 
 
+# select_info_in_prompt_table_querry = f"""SELECT %s FROM prompts where id=%s"""
+
 # transform_tuple_to_list :
 # output a list of tuple --> [('user1',), ('user2',), ('user3',)]
 # input a normal list -->    ['user1', 'user2', 'user3']
@@ -23,7 +25,47 @@ def transform_tuple_to_list(tuple_data):
     return dat_list
 
 
-# This fonction transform selected prompt info to json format
+# This function get the prompt id and return the username owner
+def get_prompt_owner(id_prompt):
+    curs.execute("""SELECT user_info FROM prompts where id=%s""", (id_prompt,))
+    user = curs.fetchone()  # output --> ('user')
+    return user[0]
+
+
+# This function get actual prompt status
+def get_prompt_status(id_prompt):
+    curs.execute("""SELECT status FROM prompts where id=%s""", (id_prompt,))
+    status = curs.fetchone()  # output --> ('user')
+    return status[0]
+
+
+# This is a function using to get the prompt actual note
+def get_prompt_note(id_prompt):
+    curs.execute("""SELECT note FROM prompts WHERE id=%s""", (id_prompt,))
+    infos = curs.fetchone()  # output --> ('user')
+    return infos[0]
+
+
+#  This is a function using to get the prompt actual price
+def get_prompt_price(id_prompt):
+    curs.execute("""SELECT price FROM prompts where id=%s""", (id_prompt,))
+    infos = curs.fetchone()  # output --> ('user')
+    return infos[0]
+
+
+# This function get the group of the user
+def get_user_group_id(username):
+    curs.execute("""SELECT group_id FROM users where username=%s""", (username,))
+    user_group_id = curs.fetchone()  # output --> ('user')
+    return user_group_id[0]
+
+
+# This function return True for same group member and false else
+def isInSameGroup(owner, user):
+    return get_user_group_id(owner) == get_user_group_id(user)
+
+
+# This function transform selected prompt info to json format
 def transform_data_to_json(data):
     """
     Transforme une liste de tuples en une liste de dictionnaires formatée en JSON.
@@ -41,6 +83,13 @@ def transform_data_to_json(data):
     ]
 
     return json.dumps(json_data)
+
+
+# This function  active the prompt in note >=6
+def verif_activation(id, note, cursor, database):
+    if note >= 6:
+        cursor.execute("""UPDATE prompts SET status = 'active' WHERE id = %s""", (id,))
+        database.commit()
 
 
 curs = db.cursor()
@@ -79,10 +128,4 @@ all_admins_hashed_pass_list = transform_tuple_to_list(all_admins_hashed_pass)
 curs.execute('SELECT * FROM admins WHERE username = %s AND hashed_password = %s', ('setoudie', 'try'))
 admin = curs.fetchone()
 
-
-def get_prompt_owner(id_prompt):
-    curs.execute("""SELECT user_info FROM prompts where id=%s""", (id_prompt,))
-    user = curs.fetchone()  # output --> ('user')
-    return user[0]
-
-print(get_prompt_owner(7))
+print(isInSameGroup(owner='user1', user='user1'))
