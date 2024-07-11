@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS Prompts(
     prompt_content TEXT,
     price FLOAT DEFAULT 1000,
     note INTEGER CHECK (note >= -10 AND note <= 10) DEFAULT 0,
-    status VARCHAR(10) CHECK (status IN ('active', 'inactive', 'pending', 'review', 'reminder', 'delete')) DEFAULT 'pending',
+    status VARCHAR(10) CHECK (status IN ('active', 'pending', 'review', 'reminder', 'delete')) DEFAULT 'pending',
     creat_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     user_id INTEGER,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE

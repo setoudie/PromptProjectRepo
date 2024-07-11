@@ -44,10 +44,10 @@ def transform_data_to_json(data):
 
 
 curs = db.cursor()
-dict_curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)
+dict_curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)  # This cursor return a list of list --> [[],[]...]
 
-curs.execute(select_all_users_querry)  #Getting all users in user's table
-all_users_data = curs.fetchall()  #all users data ( a list of tuple)
+curs.execute(select_all_users_querry)  # Getting all users in user's table
+all_users_data = curs.fetchall()  # All users data ( a list of tuple)
 
 # Selecting all user's username
 curs.execute(select_all_users_usernames_querry)
@@ -70,7 +70,6 @@ all_admins_hashed_pass = curs.fetchall()
 dict_curs.execute(select_all_prompt_info_querry)
 all_selected_prompts = dict_curs.fetchall()
 
-
 #  Transform tuple data to list data
 all_users_hashed_pass_list = transform_tuple_to_list(all_users_hashed_pass)
 all_users_usernames_list = transform_tuple_to_list(all_users_usernames)
@@ -80,4 +79,10 @@ all_admins_hashed_pass_list = transform_tuple_to_list(all_admins_hashed_pass)
 curs.execute('SELECT * FROM admins WHERE username = %s AND hashed_password = %s', ('setoudie', 'try'))
 admin = curs.fetchone()
 
-# print(all_selected_prompts)
+
+def get_prompt_owner(id_prompt):
+    curs.execute("""SELECT user_info FROM prompts where id=%s""", (id_prompt,))
+    user = curs.fetchone()  # output --> ('user')
+    return user[0]
+
+print(get_prompt_owner(7))

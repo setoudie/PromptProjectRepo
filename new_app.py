@@ -1,47 +1,40 @@
-from flask import Flask, jsonify, request
-from flask_jwt_extended import JWTManager, jwt_required, create_access_token, get_jwt_identity, verify_jwt_in_request
-from functools import wraps
-
-app = Flask(__name__)
-app.config['JWT_SECRET_KEY'] = 'toto'  # Changez cela avec une clé secrète plus sécurisée
-jwt = JWTManager(app)
+from flask import request, jsonify
+from flask_jwt_extended import jwt_required
+from your_auth_module import role_required  # Assurez-vous d'importer votre propre décorateur role_required
+import psycopg2
+import psycopg2.extras
 
 
-def role_required(role):
-    def wrapper(fn):
-        @wraps(fn)
-        def decorator(*args, **kwargs):
-            verify_jwt_in_request()
-            claims = get_jwt_identity()
-            if claims.get('role') != role:
-                return jsonify({'msg': 'Forbidden: Insufficient permissions'}), 403
-            return fn(*args, **kwargs)
-
-        return decorator
-
-    return wrapper
-
-
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.json.get('username', None)
-    password = request.json.get('password', None)
-    # Ajoutez ici la logique de vérification de l'utilisateur
-    if username != 'admin' or password != 'admin':  # Exemple de vérification simple
-        return jsonify({"msg": "Bad username or password"}), 401
-
-    # Créer un token JWT avec le rôle 'admin'
-    access_token = create_access_token(identity={'username': username, 'role': 'admin'})
-    return jsonify(access_token=access_token)
-
-
-@app.route('/create_group', methods=['POST'])
+@prompts_bp.route('/delete/<int:id>', methods=['DELETE'])
 @jwt_required()
 @role_required('admin')
-def create_group():
-    # Code pour créer un groupe
-    return jsonify(msg='Group created successfully'), 201
+def delete(id):
+    try:
+        # Connexion à la base de données
+        conn = psycopg2.connect(
+            dbname="your_db_name",
+            user="your_db_user",
+            password="your_db_password",
+            host="your_db_host",
+            port="your_db_port"
+        )
+        curs = conn.cursor(cursor_factory=psycopg2.extras.DictCursor)
 
+        # Exécution de la requête DELETE
+        curs.execute("DELETE FROM prompts WHERE id = %s", (id,))
 
-if __name__ == '__main__':
-    app.run()
+        # Commit des changements
+        conn.commit()
+
+        # Fermeture du curseur et de la connexion
+        curs.close()
+        conn.close()
+
+        return jsonify({"message": "Prompt deleted successfully"}), 200
+    except psycopg2.Error as e:
+        # Gestion des erreurs de la base de données
+        if conn:
+            conn.rollback()
+        return jsonify({"error": str(e)}), 500
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
