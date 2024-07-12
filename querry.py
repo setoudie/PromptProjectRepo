@@ -11,6 +11,7 @@ select_all_admin_usernames_querry = """SELECT username FROM admins"""
 select_all_users_hashed_password_querry = """SELECT hashed_password FROM users"""
 select_all_hashed_admins_password_querry = """SELECT hashed_password FROM admins"""
 select_all_prompt_info_querry = """SELECT prompt_content, user_info, price, note, status FROM prompts"""
+select_all_user_voted_prompt_querry = """SELECT user_info FROM votes where prompt_id=%s"""
 
 
 # select_info_in_prompt_table_querry = f"""SELECT %s FROM prompts where id=%s"""
@@ -53,6 +54,13 @@ def get_prompt_price(id_prompt):
     return infos[0]
 
 
+def get_all_user_voted_prompt(id):
+    # Select all user who voted in a same promp
+    dict_curs.execute(select_all_user_voted_prompt_querry, (id,))
+    user_list = dict_curs.fetchall()
+    return user_list
+
+
 # This function get the group of the user
 def get_user_group_id(username):
     curs.execute("""SELECT group_id FROM users where username=%s""", (username,))
@@ -62,7 +70,10 @@ def get_user_group_id(username):
 
 # This function return True for same group member and false else
 def isInSameGroup(owner, user):
-    return get_user_group_id(owner) == get_user_group_id(user)
+    if get_user_group_id(owner) is None or get_user_group_id(user) is None:
+        return False
+    else:
+        return get_user_group_id(owner) == get_user_group_id(user)
 
 
 # This function transform selected prompt info to json format
@@ -115,7 +126,7 @@ all_admins_usernames = curs.fetchall()
 curs.execute(select_all_hashed_admins_password_querry)
 all_admins_hashed_pass = curs.fetchall()
 
-# select prompts informations
+# select prompts information
 dict_curs.execute(select_all_prompt_info_querry)
 all_selected_prompts = dict_curs.fetchall()
 
@@ -128,4 +139,7 @@ all_admins_hashed_pass_list = transform_tuple_to_list(all_admins_hashed_pass)
 curs.execute('SELECT * FROM admins WHERE username = %s AND hashed_password = %s', ('setoudie', 'try'))
 admin = curs.fetchone()
 
-print(isInSameGroup(owner='user1', user='user1'))
+# print(['user1'] in get_all_user_voted_prompt(6))
+#
+# for elmt in get_all_user_voted_prompt(6):
+#     print(elmt)
