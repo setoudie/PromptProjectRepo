@@ -11,7 +11,7 @@ app = create_app()
 
 @app.route('/')
 def home():
-    return 'hello'
+    return render_template('login.html')
 
 
 @app.route('/protected-route', methods=['GET'])

@@ -1,0 +1,75 @@
+.login-form {
+  max-width: 300px;
+  margin: 40px auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border: 1px solid #ccc;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.login-form h2 {
+  margin-top: 0;
+  font-weight: bold;
+  color: #333;
+}
+
+.login-form p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.login-form input[type="text"], .login-form input[type="password"] {
+  width: 100%;
+  height: 40px;
+  margin-bottom: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.login-form button[type="submit"] {
+  width: 100%;
+  height: 40px;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.login-form button[type="submit"]:hover {
+  background-color: #3e8e41;
+}
+
+.social-login {
+  margin-top: 20px;
+}
+
+.social-login button {
+  width: 100%;
+  height: 40px;
+  margin-bottom: 10px;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.social-login .google {
+  background-color: #dd4b39;
+  color: #fff;
+}
+
+.social-login .twitter {
+  background-color: #1da1f2;
+  color: #fff;
+}
+
+.social-login .vll {
+  background-color: #333;
+  color: #fff;
+}
+
+.social-login .b {
+  background-color: #666;
+  color: #fff;
+}
