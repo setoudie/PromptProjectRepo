@@ -55,4 +55,4 @@ CREATE TABLE IF NOT EXISTS Votes(
     vote_value VARCHAR(10),
     FOREIGN KEY (prompt_id) REFERENCES Prompts(id) ON DELETE CASCADE,
     FOREIGN KEY (user_id) REFERENCES Users(id) ON DELETE CASCADE
-);
+)
