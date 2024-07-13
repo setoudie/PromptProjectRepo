@@ -1,5 +1,7 @@
 from datetime import timedelta
 from functools import wraps
+
+from flasgger import swag_from
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, decode_token, jwt_required, get_jwt_identity, verify_jwt_in_request
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,6 +13,37 @@ auth_bp = Blueprint('auth', __name__)
 
 # Creation de la route de connexion
 @auth_bp.route('/login', methods=['POST'])
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'Login successful',
+            'examples': {
+                'application/json': {
+                    'access_token': 'string'
+                }
+            }
+        },
+        401: {
+            'description': 'Invalid credentials'
+        }
+    },
+    'parameters': [
+        {
+            'name': 'username',
+            'in': 'formData',
+            'type': 'string',
+            'required': True,
+            'description': 'The user\'s username'
+        },
+        {
+            'name': 'password',
+            'in': 'formData',
+            'type': 'string',
+            'required': True,
+            'description': 'The user\'s password'
+        }
+    ]
+})
 def login():
     username = request.json.get('username')
     password = request.json.get('password')

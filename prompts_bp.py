@@ -8,8 +8,6 @@ from querry import transform_data_to_json, all_selected_prompts, get_prompt_owne
     get_prompt_note, get_prompt_status, isInSameGroup, verif_activation, get_all_user_voted_prompt, get_user_vote_value, \
     verif_deletion, update_prompt_note_and_vote
 
-VOTING_WEIGHT = 1
-
 prompts_bp = Blueprint('prompts', __name__)
 
 db = get_db_connection('promptprojectdb')
@@ -30,7 +28,7 @@ def create_prompt():
         curs.execute("""INSERT INTO prompts (prompt_content, user_info) VALUES (%s, %s)""", (content, username_user))
         db.commit()
         # db.close()
-        return jsonify(msg='Prompt succesfuly create')
+        return jsonify(msg='Prompt successfully create')
     else:
         return jsonify(msg='Missing values')
 
@@ -128,23 +126,21 @@ def like_vote(id_prompt):
     # Information about the logged user
     user_logged_info = get_jwt_identity()
     logged_user_username = user_logged_info.get('username')
-    logged_user_group = get_user_group_id(logged_user_username)
 
     # Information about the prompt owner user
     prompt_owner_username = get_prompt_owner(id_prompt=id_prompt)
-    prompt_owner_user_group = get_user_group_id(prompt_owner_username)
 
     # Check if the user is already vote the prompt
-    if [logged_user_username] in get_all_user_voted_prompt(id=id_prompt) and get_user_vote_value(id=id_prompt,
-                                                                                                 cursor=curs,
-                                                                                                 database=db) >= 0:
+    if [logged_user_username] in get_all_user_voted_prompt(id=id_prompt) and 0 <= get_user_vote_value(id=id_prompt,
+                                                                                                      cursor=curs,
+                                                                                                      database=db):
         return jsonify(msg="You can't vote again. You're already vote this prompt")
     else:
         try:
             if prompt_owner_username == logged_user_username:
                 return jsonify(msg="You can't vote your own prompt ")
 
-            if actual_prompt_status not in ['active', 'pending', 'delete']:
+            if actual_prompt_status not in ['pending', 'delete']:
                 return jsonify(msg=f"Prompt status: {actual_prompt_status}\n You can't vote this prompt")
 
             # This function is explained in 'querry.py' file
@@ -174,11 +170,9 @@ def dislike_vote(id_prompt):
     # Information about the logged user : (username and group)
     user_logged_info = get_jwt_identity()
     logged_user_username = user_logged_info.get('username')
-    logged_user_group = get_user_group_id(logged_user_username)
 
     # Information about the prompt owner user: (username and group)
     prompt_owner_username = get_prompt_owner(id_prompt=id_prompt)
-    prompt_owner_user_group = get_user_group_id(prompt_owner_username)
 
     # Check if the user is already vote the prompt
     if [logged_user_username] in get_all_user_voted_prompt(id=id_prompt) and get_user_vote_value(id=id_prompt,

@@ -1,3 +1,4 @@
+from flasgger import swag_from
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from flask import Blueprint, jsonify, request
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -11,6 +12,19 @@ users_bp = Blueprint('users', __name__)
 @users_bp.route('/register', methods=['POST'])
 @jwt_required()
 @role_required('admin')
+@swag_from({
+    'responses': {
+        200: {
+            'description': 'A list of users',
+            'examples': {
+                'application/json': [
+                    {'id': 1, 'username': 'user1'},
+                    {'id': 2, 'username': 'user2'}
+                ]
+            }
+        }
+    }
+})
 def register():
     # Recuperation des informations du json d'inscription
     firstname = request.json.get('firstname')

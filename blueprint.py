@@ -1,5 +1,4 @@
-from functools import wraps
-import base64
+from flasgger import Swagger
 from flask import Flask, request, jsonify
 from flask_jwt_extended import JWTManager
 from authentification_bp import auth_bp
@@ -11,6 +10,7 @@ from prompts_bp import prompts_bp
 # Fonction de creation de l'app and all bluprints
 def create_app():
     app = Flask(__name__)
+    Swagger(app)
     app.config['JWT_SECRET_KEY'] = 'fd06cd22f58b414a91c68a59ea4f351e'
     jwt = JWTManager(app)
 
