@@ -1,3 +1,4 @@
+from datetime import timedelta
 from functools import wraps
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import create_access_token, decode_token, jwt_required, get_jwt_identity, verify_jwt_in_request
@@ -25,7 +26,7 @@ def login():
 
     if admin_info is not None:
         payload_data = {'username': admin_info[0], 'role': 'admin'}  # admin_info[0] --> username value
-        access_token = create_access_token(identity=payload_data)
+        access_token = create_access_token(identity=payload_data, expires_delta=timedelta(hours=3))
         conn.close()
         return jsonify({'access_token': access_token}), 200
 
@@ -41,7 +42,7 @@ def login():
         for pseudo, hash_pass in zip(all_users_usernames_list, all_users_hashed_pass_list):
             if pseudo == user_info[0] and check_password_hash(pwhash=user_info[-3], password=password):
                 payload_data = {'username': user_info[0], 'role': 'user'}
-                access_token = create_access_token(identity=payload_data)
+                access_token = create_access_token(identity=payload_data, expires_delta=timedelta(hours=3))
                 conn.close()
                 return jsonify({'access_token': access_token}), 200
     except Exception as e:

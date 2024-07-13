@@ -5,7 +5,10 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 from authentification_bp import role_required
 from db_conn import get_db_connection
 from querry import transform_data_to_json, all_selected_prompts, get_prompt_owner, get_user_group_id, get_prompt_price, \
-    get_prompt_note, get_prompt_status, isInSameGroup, verif_activation, get_all_user_voted_prompt
+    get_prompt_note, get_prompt_status, isInSameGroup, verif_activation, get_all_user_voted_prompt, get_user_vote_value, \
+    verif_deletion, update_prompt_note_and_vote
+
+VOTING_WEIGHT = 1
 
 prompts_bp = Blueprint('prompts', __name__)
 
@@ -30,6 +33,32 @@ def create_prompt():
         return jsonify(msg='Prompt succesfuly create')
     else:
         return jsonify(msg='Missing values')
+
+
+# This route can is used to edit a prompt
+@prompts_bp.route('/edit/<int:id_prompt>', methods=['PUT'])
+@jwt_required()
+@role_required('user')
+def edit_prompt(id_prompt):
+    user_info = get_jwt_identity()
+    logged_username = user_info.get('username')
+
+    try:
+        if get_prompt_owner(id_prompt=id_prompt) == logged_username:
+            if get_prompt_status(id_prompt=id_prompt) in ['pending', 'review']:
+                new_prompt_content = request.json.get('new_content')
+                curs.execute("""UPDATE prompts SET prompt_content = %s WHERE id = %s""",
+                             (new_prompt_content, id_prompt))
+                db.commit()
+                return jsonify(msg="Your update is successfully save")
+            else:
+                return jsonify(msg=f"You can't update a prompt with {get_prompt_status(id_prompt)} status")
+        else:
+            return jsonify(msg="You can also vote your own prompt")
+    except TypeError:
+        return jsonify(msg="Missing id")
+    except psycopg2.Error as e:
+        return jsonify(msg=f"Error : {e}")
 
 
 # Code pour supprimer un prompt
@@ -82,12 +111,12 @@ def prompt_asked_to_delete(id_prompt):
         return jsonify(msg=f'Error : {e}')
 
 
-# Route pour voter sur unn prompt afin de l'activer
-@prompts_bp.route('/vote-for-activation/<int:id_prompt>', methods=['PUT', 'GET'])
+# Route pour liker un prompt
+@prompts_bp.route('/like/<int:id_prompt>', methods=['PUT', 'GET'])
 @jwt_required()
 @role_required('user')
-def vote_for_activation(id_prompt):
-    VOTING_WEIGHT = 1
+def like_vote(id_prompt):
+    LIKE_VOTING_WEIGHT = 1
     # curs = db.cursor()
     try:
         initial_prompt_note = get_prompt_note(id_prompt)
@@ -106,40 +135,78 @@ def vote_for_activation(id_prompt):
     prompt_owner_user_group = get_user_group_id(prompt_owner_username)
 
     # Check if the user is already vote the prompt
-    if [logged_user_username] in get_all_user_voted_prompt(id=id_prompt):
+    if [logged_user_username] in get_all_user_voted_prompt(id=id_prompt) and get_user_vote_value(id=id_prompt,
+                                                                                                 cursor=curs,
+                                                                                                 database=db) >= 0:
         return jsonify(msg="You can't vote again. You're already vote this prompt")
     else:
         try:
             if prompt_owner_username == logged_user_username:
                 return jsonify(msg="You can't vote your own prompt ")
 
-            if actual_prompt_status not in ['pending', 'review', 'reminder', 'delete']:
-                return jsonify(msg=f"This prompt is already {actual_prompt_status}")
+            if actual_prompt_status not in ['active', 'pending', 'delete']:
+                return jsonify(msg=f"Prompt status: {actual_prompt_status}\n You can't vote this prompt")
 
-            if isInSameGroup(prompt_owner_username, logged_user_username):
-                vote_value = 2 * VOTING_WEIGHT
-                print(prompt_owner_user_group, logged_user_group)
-            else:
-                print(prompt_owner_user_group, logged_user_group)
-                vote_value = 1 * VOTING_WEIGHT
+            # This function is explained in 'querry.py' file
+            update_prompt_note_and_vote(curs, db, id_prompt, logged_user_username, prompt_owner_username,
+                                        initial_prompt_note, LIKE_VOTING_WEIGHT)
 
-            # print(vote_value)
-            new_prompt_note = initial_prompt_note + vote_value
-            curs.execute("""UPDATE prompts SET note = %s WHERE id = %s""", (new_prompt_note, id_prompt))
-            curs.execute("""INSERT INTO votes (prompt_id, user_info, vote_value) VALUES (%s, %s, %s)""",
-                         (id_prompt, logged_user_username, vote_value))
-            db.commit()
-
-            verif_activation(id=id_prompt, note=new_prompt_note, cursor=curs, database=db)
             return jsonify(msg='Your vote is successfully save')
         except (psycopg2.Error, Exception) as e:
             return jsonify(msg=f"Error : {e}")
 
 
+# Route pour dislike un prompt
+@prompts_bp.route('/dislike/<int:id_prompt>', methods=['PUT', 'GET'])
+@jwt_required()
+@role_required('user')
+def dislike_vote(id_prompt):
+    DISLIKE_VOTING_WEIGHT = -1
+    # curs = db.cursor()
+    try:
+        initial_prompt_note = get_prompt_note(id_prompt)
+
+    except TypeError:  # if the id is missing get_prompt_note return None so i catch this error
+        return jsonify(msg=f"Not prompt with id = {id_prompt}")
+
+    actual_prompt_status = get_prompt_status(id_prompt)
+
+    # Information about the logged user : (username and group)
+    user_logged_info = get_jwt_identity()
+    logged_user_username = user_logged_info.get('username')
+    logged_user_group = get_user_group_id(logged_user_username)
+
+    # Information about the prompt owner user: (username and group)
+    prompt_owner_username = get_prompt_owner(id_prompt=id_prompt)
+    prompt_owner_user_group = get_user_group_id(prompt_owner_username)
+
+    # Check if the user is already vote the prompt
+    if [logged_user_username] in get_all_user_voted_prompt(id=id_prompt) and get_user_vote_value(id=id_prompt,
+                                                                                                 cursor=curs,
+                                                                                                 database=db) < 0:
+        return jsonify(msg="You can't vote again. You're already vote this prompt")
+    else:
+        try:
+            if prompt_owner_username == logged_user_username:
+                return jsonify(msg="You can't vote your own prompt ")
+
+            if actual_prompt_status not in ['active', 'pending']:
+                return jsonify(msg=f"Prompt status: {actual_prompt_status}\n You can't vote this prompt")
+                # This function is explained in 'querry.py' file
+            else:
+                update_prompt_note_and_vote(curs, db, id_prompt, logged_user_username, prompt_owner_username,
+                                            initial_prompt_note, DISLIKE_VOTING_WEIGHT)
+
+                return jsonify(msg='Your vote is successfully save')
+        except (psycopg2.Error, Exception) as e:
+            return jsonify(msgs=f"Error : {e}")
+
+
 # Route pour afficher tous les prompts
 @prompts_bp.route('/dashboard', methods=['GET'])
 @jwt_required()
-@role_required('admin')
+# @role_required('admin')
+# @role_required('user')
 def list_prompts():
     json_data = [
         {

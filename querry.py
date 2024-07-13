@@ -7,10 +7,11 @@ db = get_db_connection(db_name="promptprojectdb")
 # Define the querry
 select_all_users_querry = """SELECT * FROM users"""
 select_all_users_usernames_querry = """SELECT username FROM users"""
-select_all_admin_usernames_querry = """SELECT username FROM admins"""
 select_all_users_hashed_password_querry = """SELECT hashed_password FROM users"""
+select_all_admin_usernames_querry = """SELECT username FROM admins"""
 select_all_hashed_admins_password_querry = """SELECT hashed_password FROM admins"""
 select_all_prompt_info_querry = """SELECT prompt_content, user_info, price, note, status FROM prompts"""
+select_user_vote_value_querry = """SELECT vote_value FROM votes WHERE prompt_id=%s"""
 select_all_user_voted_prompt_querry = """SELECT user_info FROM votes where prompt_id=%s"""
 
 
@@ -76,6 +77,31 @@ def isInSameGroup(owner, user):
         return get_user_group_id(owner) == get_user_group_id(user)
 
 
+# This function update the note of prompt and add vote info into table vote
+def update_prompt_note_and_vote(cursor, database, id_prompt, logged_user_username, prompt_owner_username,
+                                initial_prompt_note, weight):
+    # cursor = db.cursor()
+    if isInSameGroup(prompt_owner_username, logged_user_username):
+        vote_value = 2 * weight
+        print("Users are in the same group:", prompt_owner_username, logged_user_username)
+    else:
+        vote_value = 1 * weight
+        print("Users are in different groups:", prompt_owner_username, logged_user_username)
+
+    new_prompt_note = initial_prompt_note + vote_value
+
+    # Mettre à jour la note du prompt
+    cursor.execute("""UPDATE prompts SET note = %s WHERE id = %s""", (new_prompt_note, id_prompt))
+
+    # Insérer le vote dans la table des votes
+    cursor.execute("""INSERT INTO votes (prompt_id, user_info, vote_value) VALUES (%s, %s, %s)""",
+                   (id_prompt, logged_user_username, vote_value))
+
+    database.commit()  # Save the changes
+    verif_deletion(id=id_prompt, note=new_prompt_note, cursor=curs, database=database)
+    verif_activation(id=id_prompt, note=new_prompt_note, cursor=curs, database=database)
+
+
 # This function transform selected prompt info to json format
 def transform_data_to_json(data):
     """
@@ -96,11 +122,26 @@ def transform_data_to_json(data):
     return json.dumps(json_data)
 
 
-# This function  active the prompt in note >=6
+# This function  active the prompt when note >=6
 def verif_activation(id, note, cursor, database):
     if note >= 6:
         cursor.execute("""UPDATE prompts SET status = 'active' WHERE id = %s""", (id,))
         database.commit()
+
+
+# This function change prompt status to delete when note <=-6
+def verif_deletion(id, note, cursor, database):
+    if note <= -6:
+        cursor.execute("""UPDATE prompts SET status = 'delete' WHERE id = %s""", (id,))
+        database.commit()
+
+
+# This function get the vote value of user with id = id
+def get_user_vote_value(id, cursor, database):
+    cursor.execute(select_user_vote_value_querry, (id,))
+    data = cursor.fetchone()
+    database.commit()
+    return data[0]
 
 
 curs = db.cursor()
@@ -139,7 +180,8 @@ all_admins_hashed_pass_list = transform_tuple_to_list(all_admins_hashed_pass)
 curs.execute('SELECT * FROM admins WHERE username = %s AND hashed_password = %s', ('setoudie', 'try'))
 admin = curs.fetchone()
 
-# print(['user1'] in get_all_user_voted_prompt(6))
+print(get_user_vote_value(id=6, cursor=curs, database=db))
 #
 # for elmt in get_all_user_voted_prompt(6):
 #     print(elmt)
+update_prompt_note_and_vote(curs, db, 11, "user1", "user11", 1, 1)
