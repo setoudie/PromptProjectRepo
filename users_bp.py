@@ -8,6 +8,7 @@ from querry import all_users_data, all_users_usernames_list, all_admins_username
 
 users_bp = Blueprint('users', __name__)
 
+
 # Enregistrement d'un nouveau user
 @users_bp.route('/register', methods=['POST'])
 @jwt_required()

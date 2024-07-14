@@ -70,7 +70,7 @@ def login():
     # print(admin_info)
 
     # Now we are checking that the input data (username and password ) are in our database
-    print(user_info[-3])
+    # print(user_info[-3])
     try:
         for pseudo, hash_pass in zip(all_users_usernames_list, all_users_hashed_pass_list):
             if pseudo == user_info[0] and check_password_hash(pwhash=user_info[-3], password=password):

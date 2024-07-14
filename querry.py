@@ -12,7 +12,8 @@ select_all_admin_usernames_querry = """SELECT username FROM admins"""
 select_all_hashed_admins_password_querry = """SELECT hashed_password FROM admins"""
 select_all_prompt_info_querry = """SELECT prompt_content, user_info, price, note, status FROM prompts"""
 select_user_vote_value_querry = """SELECT vote_value FROM votes WHERE prompt_id=%s"""
-select_all_user_voted_prompt_querry = """SELECT user_info FROM votes where prompt_id=%s"""
+select_all_user_voted_prompt_querry = """SELECT user_info FROM votes WHERE prompt_id=%s"""
+select_all_user_noted_prompt_querry = """SELECT user_info FROM notes WHERE prompt_id=%s"""
 
 
 # select_info_in_prompt_table_querry = f"""SELECT %s FROM prompts where id=%s"""
@@ -56,8 +57,16 @@ def get_prompt_price(id_prompt):
 
 
 def get_all_user_voted_prompt(id):
-    # Select all user who voted in a same promp
+    # Select all user who voted in a same prompt
     dict_curs.execute(select_all_user_voted_prompt_querry, (id,))
+    user_list = dict_curs.fetchall()
+    return user_list
+
+
+# This function get all user noted to the specific prompt with id: id
+def get_all_user_noted_prompt(id):
+    # Select all user who voted in a same prompt
+    dict_curs.execute(select_all_user_noted_prompt_querry, (id,))
     user_list = dict_curs.fetchall()
     return user_list
 
@@ -77,9 +86,9 @@ def isInSameGroup(owner, user):
         return get_user_group_id(owner) == get_user_group_id(user)
 
 
-# This function update the note of prompt and add vote info into table vote
-def update_prompt_note_and_vote(cursor, database, id_prompt, logged_user_username, prompt_owner_username,
-                                initial_prompt_note, weight):
+# This function update the vote value of prompt and add vote info into table vote
+def update_prompt_vote_value(cursor, database, id_prompt, logged_user_username, prompt_owner_username,
+                             initial_prompt_note, weight):
     # cursor = db.cursor()
     if isInSameGroup(prompt_owner_username, logged_user_username):
         vote_value = 2 * weight
@@ -100,6 +109,42 @@ def update_prompt_note_and_vote(cursor, database, id_prompt, logged_user_usernam
     database.commit()  # Save the changes
     verif_deletion(id=id_prompt, note=new_prompt_note, cursor=curs, database=database)
     verif_activation(id=id_prompt, note=new_prompt_note, cursor=curs, database=database)
+
+
+def update_prompt_price(cursor, database, id_prompt, logged_user_username, prompt_owner_username,
+                        initial_prompt_price, input_user_note):
+    default_price = 1000
+    # cursor = db.cursor()
+    if isInSameGroup(prompt_owner_username, logged_user_username):
+        note_value = 0.6 * input_user_note
+        print("Users are in the same group:", prompt_owner_username, logged_user_username)
+    else:
+        note_value = 0.4 * input_user_note
+        print("Users are in different groups:", prompt_owner_username, logged_user_username)
+
+    # new_prompt_price = initial_prompt_price + vote_value
+
+    # Insérer le vote dans la table des votes
+    cursor.execute("""INSERT INTO notes (prompt_id, user_info, note_value) VALUES (%s, %s, %s)""",
+                   (id_prompt, logged_user_username, note_value))
+    database.commit()  # Save the changes
+
+    # calculate the sum of notes
+    cursor.execute("""SELECT SUM(note_value) FROM notes WHERE prompt_id = %s""", (id_prompt,))
+    avg_notes = cursor.fetchone()[0]
+    print(avg_notes)
+
+    # Count all user who rate a specific prompt
+    cursor.execute("""SELECT COUNT(user_info) FROM notes WHERE prompt_id = %s""", (id_prompt,))
+    total_user_noted_prompt = cursor.fetchone()[0]
+    print(total_user_noted_prompt, initial_prompt_price)
+
+    new_price = round(default_price * (1 + (avg_notes / total_user_noted_prompt)), 2)
+    print(new_price)
+
+    # Update the price  of the prompt
+    cursor.execute("""UPDATE prompts SET price = %s WHERE id = %s""", (new_price, id_prompt))
+    database.commit()
 
 
 # This function transform selected prompt info to json format
@@ -184,4 +229,4 @@ print(get_user_vote_value(id=6, cursor=curs, database=db))
 #
 # for elmt in get_all_user_voted_prompt(6):
 #     print(elmt)
-update_prompt_note_and_vote(curs, db, 11, "user1", "user11", 1, 1)
+update_prompt_vote_value(curs, db, 11, "user1", "user11", 1, 1)

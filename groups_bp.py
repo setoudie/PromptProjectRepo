@@ -5,7 +5,7 @@ from db_conn import get_db_connection
 
 groups_bp = Blueprint('groups', __name__)
 
-# Route creation groupe
+# Route creation groupe d'users
 @groups_bp.route('/create', methods=['POST'])
 @jwt_required()
 @role_required('admin')

@@ -7,6 +7,7 @@ from admins_bp import admin_bp
 from groups_bp import groups_bp
 from prompts_bp import prompts_bp
 
+
 # Fonction de creation de l'app and all bluprints
 def create_app():
     app = Flask(__name__)
@@ -22,4 +23,3 @@ def create_app():
     app.register_blueprint(prompts_bp, url_prefix='/prompts')
 
     return app
-

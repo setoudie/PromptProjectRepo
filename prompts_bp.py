@@ -6,7 +6,7 @@ from authentification_bp import role_required
 from db_conn import get_db_connection
 from querry import transform_data_to_json, all_selected_prompts, get_prompt_owner, get_user_group_id, get_prompt_price, \
     get_prompt_note, get_prompt_status, isInSameGroup, verif_activation, get_all_user_voted_prompt, get_user_vote_value, \
-    verif_deletion, update_prompt_note_and_vote
+    verif_deletion, update_prompt_vote_value, get_all_user_noted_prompt, update_prompt_price
 
 prompts_bp = Blueprint('prompts', __name__)
 
@@ -14,6 +14,7 @@ db = get_db_connection('promptprojectdb')
 curs = db.cursor()
 
 
+# Route pour creer un prompt et le proposer a vendre
 @prompts_bp.route('/create', methods=['POST'])
 @jwt_required()
 @role_required('user')
@@ -89,6 +90,24 @@ def validate(id_prompt):
         return jsonify(msg=f'Error: {e}')
 
 
+# Route pour demander a l'user de modifier son prompt
+@prompts_bp.route('/ask-to-edit/<int:id_prompt>', methods=['PUT'])
+@jwt_required()
+@role_required('admin')
+def prompt_asked_to_edited(id_prompt):
+    admin_info = get_jwt_identity()
+    username = admin_info.get('username')
+
+    try:
+        if username:
+            curs.execute("""UPDATE prompts SET status = 'review' WHERE id = %s""", (id_prompt,))
+            db.commit()
+            # db.close()
+            return jsonify(msg='Prompt Successfully added to to review prompt')
+    except Exception as e:
+        return jsonify(msg=f'Error : {e}')
+
+
 # Route pour demander la suppression de son propre prompt
 @prompts_bp.route('/ask-to-delete/<int:id_prompt>', methods=['PUT'])
 @jwt_required()
@@ -144,8 +163,8 @@ def like_vote(id_prompt):
                 return jsonify(msg=f"Prompt status: {actual_prompt_status}\n You can't vote this prompt")
 
             # This function is explained in 'querry.py' file
-            update_prompt_note_and_vote(curs, db, id_prompt, logged_user_username, prompt_owner_username,
-                                        initial_prompt_note, LIKE_VOTING_WEIGHT)
+            update_prompt_vote_value(curs, db, id_prompt, logged_user_username, prompt_owner_username,
+                                     initial_prompt_note, LIKE_VOTING_WEIGHT)
 
             return jsonify(msg='Your vote is successfully save')
         except (psycopg2.Error, Exception) as e:
@@ -188,12 +207,58 @@ def dislike_vote(id_prompt):
                 return jsonify(msg=f"Prompt status: {actual_prompt_status}\n You can't vote this prompt")
                 # This function is explained in 'querry.py' file
             else:
-                update_prompt_note_and_vote(curs, db, id_prompt, logged_user_username, prompt_owner_username,
-                                            initial_prompt_note, DISLIKE_VOTING_WEIGHT)
+                update_prompt_vote_value(curs, db, id_prompt, logged_user_username, prompt_owner_username,
+                                         initial_prompt_note, DISLIKE_VOTING_WEIGHT)
 
                 return jsonify(msg='Your vote is successfully save')
         except (psycopg2.Error, Exception) as e:
             return jsonify(msgs=f"Error : {e}")
+
+
+# Route pour noter un prompt afin de changer le prix
+@prompts_bp.route('/rate/<int:id_prompt>', methods=['PUT', 'GET'])
+@jwt_required()
+@role_required('user')
+def rate_prompt(id_prompt):
+    # LIKE_VOTING_WEIGHT = 1
+    # curs = db.cursor()
+    try:
+        initial_prompt_price = get_prompt_price(id_prompt)
+    except TypeError:
+        return jsonify(msg=f"Not prompt with id = {id_prompt}")
+
+    actual_prompt_status = get_prompt_status(id_prompt)
+
+    # Information about the logged user
+    user_logged_info = get_jwt_identity()
+    logged_user_username = user_logged_info.get('username')
+
+    # Information about the prompt owner user
+    prompt_owner_username = get_prompt_owner(id_prompt=id_prompt)
+
+    # Check if the user is already vote the prompt
+    if [logged_user_username] in get_all_user_noted_prompt(id=id_prompt):
+        return jsonify(msg="You're already rate this prompt")
+    else:
+        try:
+            if prompt_owner_username == logged_user_username:
+                return jsonify(msg="You can't rate your own prompt ")
+
+            if actual_prompt_status not in ['active']:
+                return jsonify(msg=f"Prompt status: {actual_prompt_status}\n You can't rate this prompt")
+
+            note = request.json.get('note')
+
+            if not (-10 <= note <= 10):
+                return jsonify(msg='Only values between -10 and 10 are authorized')
+            else:
+                # This function is explained in 'querry.py' file
+                update_prompt_price(curs, db, id_prompt, logged_user_username, prompt_owner_username,
+                                    initial_prompt_price, note)
+
+            return jsonify(msg='Your vote is successfully save')
+        except (psycopg2.Error, Exception) as e:
+            return jsonify(msg=f"Error : {e}")
 
 
 # Route pour afficher tous les prompts
@@ -201,7 +266,7 @@ def dislike_vote(id_prompt):
 @jwt_required()
 # @role_required('admin')
 # @role_required('user')
-def list_prompts():
+def show_all_prompts():
     json_data = [
         {
             'content': item[0],
