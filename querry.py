@@ -14,6 +14,12 @@ select_all_prompt_info_querry = """SELECT prompt_content, user_info, price, note
 select_user_vote_value_querry = """SELECT vote_value FROM votes WHERE prompt_id=%s"""
 select_all_user_voted_prompt_querry = """SELECT user_info FROM votes WHERE prompt_id=%s"""
 select_all_user_noted_prompt_querry = """SELECT user_info FROM notes WHERE prompt_id=%s"""
+update_prompt_status_every_day = """
+                                        UPDATE prompts
+                                        SET status = 'review'
+                                        WHERE status IN ('pending', 'delete')
+                                        AND creat_at < NOW() - INTERVAL '2 days'
+                                 """
 
 
 # select_info_in_prompt_table_querry = f"""SELECT %s FROM prompts where id=%s"""

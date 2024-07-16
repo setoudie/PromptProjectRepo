@@ -4,9 +4,9 @@ from flask_jwt_extended import jwt_required, get_jwt_identity
 
 from authentification_bp import role_required
 from db_conn import get_db_connection
-from querry import transform_data_to_json, all_selected_prompts, get_prompt_owner, get_user_group_id, get_prompt_price, \
-    get_prompt_note, get_prompt_status, isInSameGroup, verif_activation, get_all_user_voted_prompt, get_user_vote_value, \
-    verif_deletion, update_prompt_vote_value, get_all_user_noted_prompt, update_prompt_price
+from querry import all_selected_prompts, get_prompt_owner, get_prompt_price, get_prompt_note, get_prompt_status, \
+    get_all_user_voted_prompt, get_user_vote_value, update_prompt_vote_value, get_all_user_noted_prompt, \
+    update_prompt_price
 
 prompts_bp = Blueprint('prompts', __name__)
 
@@ -252,7 +252,7 @@ def rate_prompt(id_prompt):
             if not (-10 <= note <= 10):
                 return jsonify(msg='Only values between -10 and 10 are authorized')
             else:
-                # This function is explained in 'querry.py' file
+                # This function is explained in 'query.py' file
                 update_prompt_price(curs, db, id_prompt, logged_user_username, prompt_owner_username,
                                     initial_prompt_price, note)
 
