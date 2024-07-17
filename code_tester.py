@@ -1,16 +1,27 @@
-from apscheduler.schedulers.blocking import BlockingScheduler
-from datetime import datetime
+import yagmail
 
 
-# Fonction de test
-def print_message():
-    print(f"Message imprimé à : {datetime.now()}")
+def send_email(from_email, to_email, subject, body, password):
+    try:
+        # Initialisation de yagmail avec l'adresse email et le mot de passe
+        yag = yagmail.SMTP(from_email, password)
+
+        # Envoi de l'email
+        yag.send(
+            to=to_email,
+            subject=subject,
+            contents=body
+        )
+        print("Email envoyé avec succès")
+    except Exception as e:
+        print(f"Erreur lors de l'envoi de l'email: {e}")
 
 
-# Configuration du planificateur
-scheduler = BlockingScheduler()
-scheduler.add_job(print_message, 'interval', seconds=10)
+# Exemples d'utilisation
+from_email = "votre_email@gmail.com"
+to_email = "destinataire@example.com"
+subject = "Sujet de l'email"
+body = "Ceci est le corps de l'email."
+password = "votre_mot_de_passe"
 
-# Démarrage du planificateur
-print("Scheduler démarré. Le message sera imprimé toutes les minutes.")
-scheduler.start()
+send_email(from_email, to_email, subject, body, password)

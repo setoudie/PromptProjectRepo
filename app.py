@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, make_response, session, render_template
+from flask import render_template, request
 from blueprint import create_app
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
@@ -20,7 +20,6 @@ def automatically_run_function():
 scheduler = BackgroundScheduler()
 scheduler.add_job(automatically_run_function, 'interval', hours=1)
 scheduler.start()
-
 
 app = create_app()
 

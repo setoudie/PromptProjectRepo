@@ -1,4 +1,8 @@
 import json
+import smtplib
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+
 import psycopg2.extras
 from db_conn import get_db_connection
 
@@ -6,14 +10,17 @@ db = get_db_connection(db_name="promptprojectdb")
 
 # Define the querry
 select_all_users_querry = """SELECT * FROM users"""
+select_prompt_sell_info_querry = """SELECT prompt_content, user_info, price FROM prompts WHERE id=%s"""
 select_all_users_usernames_querry = """SELECT username FROM users"""
 select_all_users_hashed_password_querry = """SELECT hashed_password FROM users"""
+select_all_user_noted_prompt_querry = """SELECT user_info FROM notes WHERE prompt_id=%s"""
+
 select_all_admin_usernames_querry = """SELECT username FROM admins"""
 select_all_hashed_admins_password_querry = """SELECT hashed_password FROM admins"""
+
 select_all_prompt_info_querry = """SELECT prompt_content, user_info, price, note, status FROM prompts"""
 select_user_vote_value_querry = """SELECT vote_value FROM votes WHERE prompt_id=%s"""
 select_all_user_voted_prompt_querry = """SELECT user_info FROM votes WHERE prompt_id=%s"""
-select_all_user_noted_prompt_querry = """SELECT user_info FROM notes WHERE prompt_id=%s"""
 update_prompt_status_every_day = """
                                         UPDATE prompts
                                         SET status = 'review'
@@ -166,11 +173,9 @@ def transform_data_to_json(data):
             'content': item[0],
             'owner': item[1],
             'price': item[2],
-            'status': item[4]
         } for item in data
     ]
-
-    return json.dumps(json_data)
+    return json_data
 
 
 # This function  active the prompt when note >=6
@@ -193,6 +198,30 @@ def get_user_vote_value(id, cursor, database):
     data = cursor.fetchone()
     database.commit()
     return data[0]
+
+
+def send_prompt(sender, passw, receiver, subject, msg):
+    try:
+        # Création du message MIME
+        message = MIMEMultipart()
+        message['From'] = sender
+        message['To'] = receiver
+        message['Subject'] = subject
+
+        # Attacher le corps du message
+        message.attach(MIMEText(msg, 'plain'))
+
+        # Connexion au serveur SMTP et envoi du mail
+        server = smtplib.SMTP('smtp.gmail.com', 587)
+        server.starttls()
+        server.login(sender, passw)
+        server.sendmail(sender, receiver, message.as_string())
+        server.quit()
+
+        print(f"Message successfully sent to {receiver}")
+    except Exception as e:
+        print(f"Failed to send message: {e}")
+        raise
 
 
 curs = db.cursor()
@@ -228,11 +257,9 @@ all_users_usernames_list = transform_tuple_to_list(all_users_usernames)
 all_admins_usernames_list = transform_tuple_to_list(all_admins_usernames)
 all_admins_hashed_pass_list = transform_tuple_to_list(all_admins_hashed_pass)
 
-curs.execute('SELECT * FROM admins WHERE username = %s AND hashed_password = %s', ('setoudie', 'try'))
-admin = curs.fetchone()
+curs.execute(select_prompt_sell_info_querry, (13,))
+admin = curs.fetchall()
 
-print(get_user_vote_value(id=6, cursor=curs, database=db))
-#
-# for elmt in get_all_user_voted_prompt(6):
-#     print(elmt)
-update_prompt_vote_value(curs, db, 11, "user1", "user11", 1, 1)
+# print(transform_data_to_json(admin))
+
+# update_prompt_vote_value(curs, db, 11, "user1", "user11", 1, 1)

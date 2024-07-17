@@ -6,7 +6,7 @@ from authentification_bp import role_required
 from db_conn import get_db_connection
 from querry import all_selected_prompts, get_prompt_owner, get_prompt_price, get_prompt_note, get_prompt_status, \
     get_all_user_voted_prompt, get_user_vote_value, update_prompt_vote_value, get_all_user_noted_prompt, \
-    update_prompt_price
+    update_prompt_price, select_prompt_sell_info_querry, send_prompt, transform_data_to_json
 
 prompts_bp = Blueprint('prompts', __name__)
 
@@ -275,3 +275,21 @@ def show_all_prompts():
             'status': item[4]
         } for item in all_selected_prompts]
     return jsonify(json_data)
+
+
+# Route pour acheter un prompt
+@prompts_bp.route('/buy/<int:id_prompt>', methods=["GET"])
+# Toutes les erreurs de cette fonction ne sont pas gerer
+def buy_prompt(id_prompt):
+    from_addr = "senytoutou@gmail.com"
+    key_pass = "rxghihsffciuriby"
+    to_addr = request.json.get('email')
+
+    curs.execute(select_prompt_sell_info_querry, (id_prompt,))
+    infos = transform_data_to_json(curs.fetchall())
+    # print(infos[0])
+
+    text = f'Prompt content : {infos[0]["content"]} \nUser username : {infos[0]["owner"]} \nPrix : {infos[0]["price"]} FCFA'
+    # print(text)
+    send_prompt(sender=from_addr, passw=key_pass, receiver=to_addr, subject="ACHAT DE NOUVEAU PROMPT", msg=text)
+    return jsonify(msg='Check your mail the prompt is sent')
