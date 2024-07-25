@@ -6,6 +6,9 @@ from db_conn import get_db_connection
 from authentification_bp import role_required
 from querry import all_users_data, all_users_usernames_list, all_admins_usernames_list, all_admins_hashed_pass_list
 
+LOC_DB_NAME = "promptprojectdb"
+HEROKU_DB_NAME = "d3svebcrtcq9m"
+
 users_bp = Blueprint('users', __name__)
 
 
@@ -49,7 +52,7 @@ def register():
 
         # generate a hashed password
         hashed_password = generate_password_hash(password=password)
-        db = get_db_connection('promptprojectdb')
+        db = get_db_connection(HEROKU_DB_NAME)
         curs = db.cursor()
         curs.execute("""INSERT INTO users (username, firstname, lastname, hashed_password, group_id, admin_info)
                             VALUES ( %s, %s, %s, %s, %s, %s) """,

@@ -5,10 +5,11 @@ from datetime import datetime
 from querry import update_prompt_status_every_day
 from db_conn import get_db_connection
 
-
+LOC_DB_NAME = "promptprojectdb"
+HEROKU_DB_NAME = "d3svebcrtcq9m"
 # Fonction pour mettre à jour le statut des prompts dans la base de données
 def automatically_run_function():
-    db = get_db_connection("promptprojectdb")
+    db = get_db_connection(HEROKU_DB_NAME)
     curs = db.cursor()
     curs.execute(update_prompt_status_every_day)
     curs.close()

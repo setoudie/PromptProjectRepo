@@ -8,9 +8,12 @@ from querry import all_selected_prompts, get_prompt_owner, get_prompt_price, get
     get_all_user_voted_prompt, get_user_vote_value, update_prompt_vote_value, get_all_user_noted_prompt, \
     update_prompt_price, select_prompt_sell_info_querry, send_prompt, transform_data_to_json
 
+LOC_DB_NAME = "promptprojectdb"
+HEROKU_DB_NAME = "d3svebcrtcq9m"
+
 prompts_bp = Blueprint('prompts', __name__)
 
-db = get_db_connection('promptprojectdb')
+db = get_db_connection(HEROKU_DB_NAME)
 curs = db.cursor()
 
 

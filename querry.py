@@ -6,7 +6,10 @@ from email.mime.text import MIMEText
 import psycopg2.extras
 from db_conn import get_db_connection
 
-db = get_db_connection(db_name="promptprojectdb")
+LOC_DB_NAME = "promptprojectdb"
+HEROKU_DB_NAME = "d3svebcrtcq9m"
+
+db = get_db_connection(db_name=HEROKU_DB_NAME)
 
 # Define the querry
 select_all_users_querry = """SELECT * FROM users"""

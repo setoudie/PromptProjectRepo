@@ -8,6 +8,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from db_conn import get_db_connection
 from querry import all_users_hashed_pass_list, all_users_usernames_list
 
+LOC_DB_NAME = "promptprojectdb"
+HEROKU_DB_NAME = "d3svebcrtcq9m"
+
 auth_bp = Blueprint('auth', __name__)
 
 
@@ -49,7 +52,7 @@ def login():
     password = request.json.get('password')
     # hash_password = request.json.get('password')
 
-    conn = get_db_connection(db_name='promptprojectdb')
+    conn = get_db_connection(db_name=HEROKU_DB_NAME)
     cursor = conn.cursor()
 
     # Recherche de l'username dans la table admin
