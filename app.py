@@ -7,6 +7,8 @@ from db_conn import get_db_connection
 
 LOC_DB_NAME = "promptprojectdb"
 HEROKU_DB_NAME = "d3svebcrtcq9m"
+
+
 # Fonction pour mettre à jour le statut des prompts dans la base de données
 def automatically_run_function():
     db = get_db_connection(HEROKU_DB_NAME)
@@ -27,7 +29,7 @@ app = create_app()
 
 @app.route('/')
 def home():
-    return "<h1>render_template('login.html')</h1>"
+    return render_template('login.html')
 
 
 if __name__ == '__main__':
