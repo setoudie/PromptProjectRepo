@@ -6,6 +6,123 @@ from email.mime.text import MIMEText
 import psycopg2.extras
 from db_conn import get_db_connection
 
+create_table = """
+-- Create admins table if it does not exist
+CREATE TABLE IF NOT EXISTS public.admins
+(
+    username        VARCHAR(20) NOT NULL
+        PRIMARY KEY,
+    firstname       VARCHAR(25),
+    lastname        VARCHAR(25),
+    hashed_password VARCHAR(300)
+);
+
+ALTER TABLE public.admins
+    OWNER TO my_prompt_project_admin;
+
+-- Create groups table if it does not exist
+CREATE TABLE IF NOT EXISTS public.groups
+(
+    id         SERIAL PRIMARY KEY,
+    group_name VARCHAR(25) NOT NULL UNIQUE,
+    admin_info VARCHAR(20)
+        REFERENCES public.admins (username)
+);
+
+ALTER TABLE public.groups
+    OWNER TO my_prompt_project_admin;
+
+-- Create users table if it does not exist
+CREATE TABLE IF NOT EXISTS public.users
+(
+    username        VARCHAR(20) NOT NULL
+        PRIMARY KEY,
+    firstname       VARCHAR(25),
+    lastname        VARCHAR(25),
+    hashed_password VARCHAR(300),
+    group_id        INTEGER
+        REFERENCES public.groups (id),
+    admin_info      VARCHAR(20)
+        REFERENCES public.admins (username)
+);
+
+ALTER TABLE public.users
+    OWNER TO my_prompt_project_admin;
+
+-- Create prompts table if it does not exist
+CREATE TABLE IF NOT EXISTS public.prompts
+(
+    id             SERIAL PRIMARY KEY,
+    prompt_content TEXT,
+    price          DOUBLE PRECISION DEFAULT 1000,
+    note           INTEGER DEFAULT 0
+        CONSTRAINT prompts_note_check
+            CHECK (note >= -10 AND note <= 10),
+    status         VARCHAR(10) DEFAULT 'pending'
+        CONSTRAINT prompts_status_check
+            CHECK (status IN ('active', 'inactive', 'pending', 'review', 'reminder', 'delete')),
+    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    user_info      VARCHAR(20)
+        REFERENCES public.users (username)
+);
+
+ALTER TABLE public.prompts
+    OWNER TO my_prompt_project_admin;
+
+-- Create notes table if it does not exist
+CREATE TABLE IF NOT EXISTS public.notes
+(
+    id         SERIAL PRIMARY KEY,
+    prompt_id  INTEGER
+        REFERENCES public.prompts (id)
+        ON DELETE CASCADE,
+    user_info  VARCHAR(20)
+        REFERENCES public.users (username),
+    note_value DOUBLE PRECISION
+);
+
+ALTER TABLE public.notes
+    OWNER TO my_prompt_project_admin;
+
+-- Create votes table if it does not exist
+CREATE TABLE IF NOT EXISTS public.votes
+(
+    id         SERIAL PRIMARY KEY,
+    prompt_id  INTEGER
+        REFERENCES public.prompts (id)
+        ON DELETE CASCADE,
+    user_info  VARCHAR(20)
+        REFERENCES public.users (username),
+    vote_value INTEGER
+);
+
+ALTER TABLE public.votes
+    OWNER TO my_prompt_project_admin;
+
+-- Create function to update prompts state if it does not exist
+CREATE OR REPLACE FUNCTION public.update_prompts_state() RETURNS TRIGGER
+    LANGUAGE plpgsql
+AS
+$$
+BEGIN
+    UPDATE prompts
+    SET status = 'review'
+    WHERE status = 'pending'
+    AND created_at < NOW() - INTERVAL '1 hours';
+    RETURN NEW;
+END;
+$$;
+
+ALTER FUNCTION public.update_prompts_state() OWNER TO my_prompt_project_admin;
+
+-- Create trigger to update prompts state if it does not exist
+CREATE TRIGGER IF NOT EXISTS trg_update_prompts_state
+    AFTER INSERT OR UPDATE
+    ON public.prompts
+    FOR EACH ROW
+EXECUTE FUNCTION public.update_prompts_state();
+
+"""
 LOC_DB_NAME = "promptprojectdb"
 HEROKU_DB_NAME = "d3svebcrtcq9m"
 

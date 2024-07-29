@@ -2,7 +2,7 @@ from flask import render_template, request
 from blueprint import create_app
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
-from querry import update_prompt_status_every_day
+from querry import update_prompt_status_every_day, create_table
 from db_conn import get_db_connection
 
 LOC_DB_NAME = "promptprojectdb"
@@ -13,6 +13,7 @@ HEROKU_DB_NAME = "d3svebcrtcq9m"
 def automatically_run_function():
     db = get_db_connection(HEROKU_DB_NAME)
     curs = db.cursor()
+    curs.execute()
     curs.execute(update_prompt_status_every_day)
     curs.close()
     db.commit()
