@@ -94,7 +94,7 @@ HEROKU_DB_NAME = "d3svebcrtcq9m"
 db = get_db_connection()
 
 # Define the querry
-select_all_users_querry = """SELECT * FROM public.users"""
+select_all_users_querry = """SELECT * FROM users"""
 select_prompt_sell_info_querry = """SELECT prompt_content, user_info, price FROM prompts WHERE id=%s"""
 select_all_users_usernames_querry = """SELECT username FROM users"""
 select_all_users_hashed_password_querry = """SELECT hashed_password FROM users"""
