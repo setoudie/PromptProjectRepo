@@ -8,12 +8,15 @@ from db_conn import get_db_connection
 LOC_DB_NAME = "promptprojectdb"
 HEROKU_DB_NAME = "d3svebcrtcq9m"
 
+db = get_db_connection()
+curs = db.cursor()
+curs.execute(create_table)
+
 
 # Fonction pour mettre à jour le statut des prompts dans la base de données
 def automatically_run_function():
-    db = get_db_connection()
-    curs = db.cursor()
-    curs.execute(create_table)
+    # db = get_db_connection()
+    # curs = db.cursor()
     curs.execute(update_prompt_status_every_day)
     curs.close()
     db.commit()
