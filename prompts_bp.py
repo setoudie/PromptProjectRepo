@@ -13,7 +13,7 @@ HEROKU_DB_NAME = "d3svebcrtcq9m"
 
 prompts_bp = Blueprint('prompts', __name__)
 
-db = get_db_connection(HEROKU_DB_NAME)
+db = get_db_connection()
 curs = db.cursor()
 
 

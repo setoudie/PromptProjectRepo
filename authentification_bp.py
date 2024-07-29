@@ -52,7 +52,7 @@ def login():
     password = request.json.get('password')
     # hash_password = request.json.get('password')
 
-    conn = get_db_connection(db_name=HEROKU_DB_NAME)
+    conn = get_db_connection()
     cursor = conn.cursor()
 
     # Recherche de l'username dans la table admin

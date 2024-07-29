@@ -52,7 +52,7 @@ def register():
 
         # generate a hashed password
         hashed_password = generate_password_hash(password=password)
-        db = get_db_connection(HEROKU_DB_NAME)
+        db = get_db_connection()
         curs = db.cursor()
         curs.execute("""INSERT INTO users (username, firstname, lastname, hashed_password, group_id, admin_info)
                             VALUES ( %s, %s, %s, %s, %s, %s) """,

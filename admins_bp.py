@@ -7,6 +7,7 @@ from querry import all_users_data, all_users_usernames_list, all_admins_username
 
 admin_bp = Blueprint('admin', __name__)
 
+
 @admin_bp.route('/all-users')
 def user_list():
     columns = ['id', 'username', 'firstname', 'lastname', 'password', 'group_id']

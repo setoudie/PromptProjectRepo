@@ -11,7 +11,7 @@ HEROKU_DB_NAME = "d3svebcrtcq9m"
 
 # Fonction pour mettre à jour le statut des prompts dans la base de données
 def automatically_run_function():
-    db = get_db_connection(HEROKU_DB_NAME)
+    db = get_db_connection()
     curs = db.cursor()
     curs.execute(create_table)
     curs.execute(update_prompt_status_every_day)

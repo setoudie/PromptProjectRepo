@@ -8,6 +8,7 @@ groups_bp = Blueprint('groups', __name__)
 LOC_DB_NAME = "promptprojectdb"
 HEROKU_DB_NAME = "d3svebcrtcq9m"
 
+
 # Route creation groupe d'users
 @groups_bp.route('/create', methods=['POST'])
 @jwt_required()
@@ -18,7 +19,7 @@ def creat_group():
     admin_info = get_jwt_identity()
     username_info = admin_info.get('username')
 
-    db = get_db_connection(HEROKU_DB_NAME)
+    db = get_db_connection()
     curs = db.cursor()
     curs.execute("""INSERT INTO groups (group_name, admin_info) VALUES (%s, %s)""", (group_name, username_info))
     db.commit()

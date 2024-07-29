@@ -3,7 +3,8 @@ from flask import Flask, request, jsonify
 
 app = Flask(__name__)
 
-# Fonction pour envoyer un email
+
+# Function pour envoyer un email
 def send_prompt(sender, passw, receiver, msg):
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
@@ -15,6 +16,7 @@ def send_prompt(sender, passw, receiver, msg):
     except Exception as e:
         print(f"Failed to send message: {e}")
         raise
+
 
 @app.route('/buy/<int:id_prompt>', methods=["GET"])
 def buy_prompt(id_prompt):
@@ -38,9 +40,11 @@ def buy_prompt(id_prompt):
     except Exception as e:
         return jsonify(msg=f"An error occurred: {e}"), 500
 
+
 def transform_data_to_json(data):
     # Transforme les données en JSON (à adapter selon votre cas)
     return str(data)
+
 
 # Simulez la configuration de la base de données et le curseur
 class MockCursor:
@@ -49,6 +53,7 @@ class MockCursor:
 
     def fetchall(self):
         return [{"id": 1, "name": "Prompt 1"}]
+
 
 curs = MockCursor()
 
