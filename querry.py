@@ -126,7 +126,7 @@ EXECUTE FUNCTION public.update_prompts_state();
 LOC_DB_NAME = "promptprojectdb"
 HEROKU_DB_NAME = "d3svebcrtcq9m"
 
-db = get_db_connection(db_name=HEROKU_DB_NAME)
+db = get_db_connection()
 
 # Define the querry
 select_all_users_querry = """SELECT * FROM users"""
