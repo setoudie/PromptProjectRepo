@@ -13,7 +13,7 @@ HEROKU_DB_NAME = "d3svebcrtcq9m"
 def automatically_run_function():
     db = get_db_connection(HEROKU_DB_NAME)
     curs = db.cursor()
-    curs.execute()
+    curs.execute(create_table)
     curs.execute(update_prompt_status_every_day)
     curs.close()
     db.commit()
