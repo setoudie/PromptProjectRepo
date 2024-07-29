@@ -7,6 +7,7 @@ import psycopg2.extras
 from db_conn import get_db_connection
 
 create_table = """
+
 -- Create admins table if it does not exist
 CREATE TABLE IF NOT EXISTS public.admins
 (
