@@ -17,8 +17,6 @@ CREATE TABLE IF NOT EXISTS public.admins
     hashed_password VARCHAR(300)
 );
 
-ALTER TABLE public.admins
-    OWNER TO my_prompt_project_admin;
 
 -- Create groups table if it does not exist
 CREATE TABLE IF NOT EXISTS public.groups
@@ -29,8 +27,6 @@ CREATE TABLE IF NOT EXISTS public.groups
         REFERENCES public.admins (username)
 );
 
-ALTER TABLE public.groups
-    OWNER TO my_prompt_project_admin;
 
 -- Create users table if it does not exist
 CREATE TABLE IF NOT EXISTS public.users
@@ -46,8 +42,6 @@ CREATE TABLE IF NOT EXISTS public.users
         REFERENCES public.admins (username)
 );
 
-ALTER TABLE public.users
-    OWNER TO my_prompt_project_admin;
 
 -- Create prompts table if it does not exist
 CREATE TABLE IF NOT EXISTS public.prompts
@@ -66,8 +60,6 @@ CREATE TABLE IF NOT EXISTS public.prompts
         REFERENCES public.users (username)
 );
 
-ALTER TABLE public.prompts
-    OWNER TO my_prompt_project_admin;
 
 -- Create notes table if it does not exist
 CREATE TABLE IF NOT EXISTS public.notes
@@ -81,8 +73,6 @@ CREATE TABLE IF NOT EXISTS public.notes
     note_value DOUBLE PRECISION
 );
 
-ALTER TABLE public.notes
-    OWNER TO my_prompt_project_admin;
 
 -- Create votes table if it does not exist
 CREATE TABLE IF NOT EXISTS public.votes
@@ -95,32 +85,6 @@ CREATE TABLE IF NOT EXISTS public.votes
         REFERENCES public.users (username),
     vote_value INTEGER
 );
-
-ALTER TABLE public.votes
-    OWNER TO my_prompt_project_admin;
-
--- Create function to update prompts state if it does not exist
-CREATE OR REPLACE FUNCTION public.update_prompts_state() RETURNS TRIGGER
-    LANGUAGE plpgsql
-AS
-$$
-BEGIN
-    UPDATE prompts
-    SET status = 'review'
-    WHERE status = 'pending'
-    AND created_at < NOW() - INTERVAL '1 hours';
-    RETURN NEW;
-END;
-$$;
-
-ALTER FUNCTION public.update_prompts_state() OWNER TO my_prompt_project_admin;
-
--- Create trigger to update prompts state if it does not exist
-CREATE TRIGGER IF NOT EXISTS trg_update_prompts_state
-    AFTER INSERT OR UPDATE
-    ON public.prompts
-    FOR EACH ROW
-EXECUTE FUNCTION public.update_prompts_state();
 
 """
 LOC_DB_NAME = "promptprojectdb"

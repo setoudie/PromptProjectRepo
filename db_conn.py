@@ -23,6 +23,13 @@ PASSWORD = parsed_url.password
 HOST = parsed_url.hostname
 PORT = parsed_url.port
 
+# Local database
+DB_NAME1 = "promptprojectdb"
+USER1 = "my_prompt_project_admin"
+PASSWORD1 = "wrongpassword"
+HOST1 = "localhost"
+PORT1 = 5432
+
 
 def get_db_connection():
     db = psycopg2.connect(

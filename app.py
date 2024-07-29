@@ -11,6 +11,7 @@ HEROKU_DB_NAME = "d3svebcrtcq9m"
 db = get_db_connection()
 curs = db.cursor()
 curs.execute(create_table)
+db.commit()
 
 
 # Fonction pour mettre à jour le statut des prompts dans la base de données
