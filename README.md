@@ -5,9 +5,9 @@ Course : https://www.guru99.com/postgresql-drop-database.html
 
 # Diagramme :
 ## Diagramme Use Cases
-![img_2.png](static/img/img_2.png)
+![img_2.png](backend/static/img/img_2.png)
 ## Diagramme de Classe
-   ![promptprojectdb.jpg](static/img/promptprojectdb.jpg)
+   ![promptprojectdb.jpg](backend/static/img/promptprojectdb.jpg)
 # Data Base Creation
 1. install PostegreSQL
    2. Open the terminal and run the following code
@@ -15,5 +15,5 @@ Course : https://www.guru99.com/postgresql-drop-database.html
       * `create database database_name;`
       * `create table table_name`
       
-         exemple: ![img.png](static/img/img.png)
+         exemple: ![img.png](backend/static/img/img.png)
       * 

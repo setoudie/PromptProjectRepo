@@ -1,3 +1,11 @@
+"""
+    Dans ce fichier, nous gérons toutes les endpoints en rapport avec les prompts. Pour la bonne marche du code nous,
+    avons importé le connecteur postgres (psychopg2), toutes les classes et fonctions utiles de flask, ainsi que
+    jwt_required et  get_jwt_identity de flask_jwt_extended pour la gestion de token JWT, de meme que toutes les
+    request necessaire dans querry.
+
+"""
+
 import psycopg2
 from flask import Blueprint, jsonify, request
 from flask_jwt_extended import jwt_required, get_jwt_identity
@@ -266,7 +274,7 @@ def rate_prompt(id_prompt):
 
 # Route pour afficher tous les prompts
 @prompts_bp.route('/dashboard', methods=['GET'])
-@jwt_required()
+# @jwt_required()
 # @role_required('admin')
 # @role_required('user')
 def show_all_prompts():

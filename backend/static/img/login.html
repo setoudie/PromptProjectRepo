@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In Template</title>
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+        }
+        .left {
+            background: url('backend/static/img/seny.png') no-repeat center center;
+            background-size: cover;
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 20px;
+        }
+        .left-content {
+            max-width: 300px;
+        }
+        .right {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: white;
+        }
+        .right-content {
+            max-width: 300px;
+            width: 100%;
+        }
+        .social-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .social-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            padding: 10px;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        .social-button img {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+        }
+        .separator {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+            color: #aaa;
+        }
+        .separator::before,
+        .separator::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: #ccc;
+            margin: 0 10px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            margin-bottom: 5px;
+        }
+        .form-group input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        .form-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .form-actions a {
+            text-decoration: none;
+            color: #0066cc;
+        }
+        .sign-in-button {
+            background-color: #ccc;
+            border: none;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        .sign-in-button:hover {
+            background-color: #bbb;
+        }
+        .sign-up-link {
+            text-align: center;
+        }
+        .sign-up-link a {
+            text-decoration: none;
+            color: #0066cc;
+        }
+    </style>
+</head>
+<body>
+    <div class="left">
+        <div class="left-content">
+            <h1>Design with us</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Morbi lobortis maximus nunc, ac rhoncus odio congue quis. Sed ac semper orci, eu porttitor lacus.</p>
+        </div>
+    </div>
+    <div class="right">
+        <div class="right-content">
+            <div class="social-buttons">
+                <a href="#" class="social-button">
+                    <img src="/backend/staticogle-icon.png" alt="Google Icon"> Continue with Google
+                </a>
+                <a href="#" class="social-button">
+                    <img src="/backend/staticitter-icon.png" alt="Twitter Icon"> Continue with Twitter
+                </a>
+            </div>
+            <div class="separator">OR</div>
+            <form>
+                <div class="form-group">
+                    <label for="email">User name</label>
+                    <input type="text" id="email" name="email">
+                </div>
+                <div class="form-group">
+                    <label for="password">Your password</label>
+                    <input type="password" id="password" name="password">
+                </div>
+                <div class="form-actions">
+                    <label><input type="checkbox"> Remember me</label>
+                    <a href="#">Forgot your password?</a>
+                </div>
+                <button type="submit" class="sign-in-button">Sign in</button>
+            </form>
+            <div class="sign-up-link">
+                Don't have an account? <a href="#">Sign up</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
