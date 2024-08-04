@@ -2,7 +2,7 @@
 
 import { Text } from "@chakra-ui/react";
 
-function PromptDashboard() {
+function DashboardText() {
   return (
     <Text
       fontSize="4xl"
@@ -17,4 +17,4 @@ function PromptDashboard() {
   );
 }
 
-export default PromptDashboard;
+export default DashboardText;
