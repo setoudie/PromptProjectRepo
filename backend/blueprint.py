@@ -6,6 +6,7 @@ from users_bp import users_bp
 from admins_bp import admin_bp
 from groups_bp import groups_bp
 from prompts_bp import prompts_bp
+from flask_cors import CORS
 
 
 # Fonction de creation de l'app and all bluprints
@@ -14,6 +15,8 @@ def create_app():
     Swagger(app)
     app.config['JWT_SECRET_KEY'] = 'fd06cd22f58b414a91c68a59ea4f351e'
     jwt = JWTManager(app)
+    CORS(app)
+
 
     # Enregistrer les blueprints
     app.register_blueprint(auth_bp, url_prefix='/auth')
