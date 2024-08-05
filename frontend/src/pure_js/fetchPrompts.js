@@ -1,4 +1,3 @@
-// fetchPrompts.js
 
 const PromptList = [
   {
@@ -95,6 +94,14 @@ const PromptList = [
     "note": 4,
     "owner": "user1",
     "price": 1000,
+    "status": "review"
+  },
+  {
+    "content": "colle's Prompt",
+    "id": 17,
+    "note": 7,
+    "owner": "Amy Colle",
+    "price": 1900,
     "status": "review"
   }
 ];

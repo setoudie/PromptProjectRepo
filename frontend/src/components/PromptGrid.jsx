@@ -1,6 +1,6 @@
 import { Grid } from "@chakra-ui/react";
 import PromptCard from "./PromptCard.jsx";
-import { PromptList } from "../dummy/fetchPrompts.js";
+import { PromptList } from "../pure_js/fetchPrompts.js";
 
 const PromptGrid = () => {
     return (
