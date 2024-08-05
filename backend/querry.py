@@ -103,7 +103,7 @@ select_all_user_noted_prompt_querry = """SELECT user_info FROM notes WHERE promp
 select_all_admin_usernames_querry = """SELECT username FROM admins"""
 select_all_hashed_admins_password_querry = """SELECT hashed_password FROM admins"""
 
-select_all_prompt_info_querry = """SELECT prompt_content, user_info, price, note, status FROM prompts"""
+select_all_prompt_info_querry = """SELECT prompt_content, user_info, price, note, status, id FROM prompts"""
 select_user_vote_value_querry = """SELECT vote_value FROM votes WHERE prompt_id=%s"""
 select_all_user_voted_prompt_querry = """SELECT user_info FROM votes WHERE prompt_id=%s"""
 update_prompt_status_every_day = """
@@ -245,7 +245,8 @@ def update_prompt_price(cursor, database, id_prompt, logged_user_username, promp
     database.commit()
 
 
-# This function transform selected prompt info to json format
+# This function transform selected prompt info to json format.
+# Elle est utilisé pour l'achat d'un prompt ie l'envoi du content
 def transform_data_to_json(data):
     """
     Transforme une liste de tuples en une liste de dictionnaires formatée en JSON.

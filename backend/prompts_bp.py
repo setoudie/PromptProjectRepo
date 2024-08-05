@@ -283,7 +283,9 @@ def show_all_prompts():
             'content': item[0],
             'owner': item[1],
             'price': item[2],
-            'status': item[4]
+            'note': item[3],
+            'status': item[4],
+            'id': item[5]
         } for item in all_selected_prompts]
     return jsonify(json_data)
 

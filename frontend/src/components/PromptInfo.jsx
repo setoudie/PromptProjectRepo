@@ -1,5 +1,4 @@
 // src/components/ProfileCard.jsx
-
 import { Box, Avatar, Text, HStack, IconButton, useColorModeValue } from "@chakra-ui/react";
 import { FiShoppingCart, FiMoreHorizontal, FiArrowRightCircle } from "react-icons/fi";
 import BuyPromptModal from "./BuyPromptModal.jsx";

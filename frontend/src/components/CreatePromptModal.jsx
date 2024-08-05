@@ -1,6 +1,7 @@
 import { useDisclosure, Button, Modal, ModalOverlay, ModalContent, ModalHeader, ModalCloseButton, ModalBody, FormControl, FormLabel, Input, ModalFooter } from '@chakra-ui/react'
 import {BiAddToQueue} from "react-icons/bi";
 import React from "react";
+
 const CreatePromptModal = () => {
   const { isOpen, onOpen, onClose } = useDisclosure()
   const initialRef = React.useRef(null)
