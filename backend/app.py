@@ -29,7 +29,7 @@ app = create_app()
 
 @app.route('/')
 def home():
-    return render_template('backend/templates/login.html')
+    return "<h1>render_template('backend/templates/login.html')</h1>"
 
 
 if __name__ == '__main__':

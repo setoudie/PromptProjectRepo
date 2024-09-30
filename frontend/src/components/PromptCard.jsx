@@ -19,7 +19,7 @@ const PromptCard = ({ prompt }) => {
                     justifyContent="space-between"
                 >
                     <HStack spacing={4} mr={7}>
-                        <Avatar bg="green.400" size="lg" />
+                        <Avatar bg={useColorModeValue("green.200", "green.700")} size="lg" />
                         <Box>
                             <Text fontWeight="bold">{prompt.owner}</Text>
                             <Text>Group ??</Text>

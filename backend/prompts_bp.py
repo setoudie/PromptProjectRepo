@@ -287,6 +287,7 @@ def show_all_prompts():
             'status': item[4],
             'id': item[5]
         } for item in all_selected_prompts]
+    print(json_data)
     return jsonify(json_data)
 
 
