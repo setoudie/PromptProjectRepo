@@ -97,7 +97,7 @@
 //   }
 // ]
 
-const url = 'http://127.0.0.1:5000/prompts/dashboard';
+const url = 'https://prompt-management.onrender.com/prompts/dashboard';
 let PromptList = [];
 
 fetch(url)

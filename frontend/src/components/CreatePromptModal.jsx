@@ -24,7 +24,7 @@ const CreatePromptModal = () => {
   const toast = useToast(); // Toast pour afficher des notifications
 
   // Récupération de l'URL depuis les variables d'environnement
-  const promptUrl = "http://127.0.0.1:5000/prompts/create";
+  const promptUrl = "https://prompt-management.onrender.com/prompts/create";
 ;
 
   // Fonction pour envoyer les données au backend
