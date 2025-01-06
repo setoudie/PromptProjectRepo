@@ -22,7 +22,7 @@ const PromptCard = ({ prompt }) => {
                         <Avatar bg={useColorModeValue("green.200", "green.700")} size="lg" />
                         <Box>
                             <Text fontWeight="bold">{prompt.owner}</Text>
-                            <Text>Group ??</Text>
+                            <Text>Categorie :</Text>
                             <Text>{prompt.content}</Text>
                         </Box>
                     </HStack>

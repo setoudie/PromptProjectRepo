@@ -15,5 +15,12 @@
       <jdbc-url>jdbc:postgresql://localhost:5432/promptprojectdb</jdbc-url>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>
+    <data-source source="LOCAL" name="postgres" uuid="c9397b5a-2968-4af6-8d99-7aa00d4b0288">
+      <driver-ref>postgresql</driver-ref>
+      <synchronize>true</synchronize>
+      <jdbc-driver>org.postgresql.Driver</jdbc-driver>
+      <jdbc-url>jdbc:postgresql://dpg-cttjh0rv2p9s738j85rg-a:5432/prompts_zgs7</jdbc-url>
+      <working-dir>$ProjectFileDir$</working-dir>
+    </data-source>
   </component>
 </project>

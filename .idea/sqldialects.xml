@@ -4,8 +4,10 @@
     <file url="file://$PROJECT_DIR$/backend/admins_bp.py" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/backend/app.py" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/backend/authentification_bp.py" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/backend/create_db_querry.sql" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/backend/db_conn.py" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/backend/groups_bp.py" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/backend/init_db.sql" dialect="PostgreSQL" />
     <file url="file://$PROJECT_DIR$/backend/prompts_bp.py" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/backend/querry.py" dialect="GenericSQL" />
     <file url="file://$PROJECT_DIR$/backend/users_bp.py" dialect="GenericSQL" />

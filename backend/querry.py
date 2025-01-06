@@ -6,92 +6,109 @@ from email.mime.text import MIMEText
 import psycopg2.extras
 from db_conn import get_db_connection
 
-create_table = """
-
--- Create admins table if it does not exist
-CREATE TABLE IF NOT EXISTS public.admins
-(
-    username        VARCHAR(20) NOT NULL
-        PRIMARY KEY,
-    firstname       VARCHAR(25),
-    lastname        VARCHAR(25),
-    hashed_password VARCHAR(300)
-);
-
-
--- Create groups table if it does not exist
-CREATE TABLE IF NOT EXISTS public.groups
-(
-    id         SERIAL PRIMARY KEY,
-    group_name VARCHAR(25) NOT NULL UNIQUE,
-    admin_info VARCHAR(20)
-        REFERENCES public.admins (username)
-);
-
-
--- Create users table if it does not exist
-CREATE TABLE IF NOT EXISTS public.users
-(
-    username        VARCHAR(20) NOT NULL
-        PRIMARY KEY,
-    firstname       VARCHAR(25),
-    lastname        VARCHAR(25),
-    hashed_password VARCHAR(300),
-    group_id        INTEGER
-        REFERENCES public.groups (id),
-    admin_info      VARCHAR(20)
-        REFERENCES public.admins (username)
-);
-
-
--- Create prompts table if it does not exist
-CREATE TABLE IF NOT EXISTS public.prompts
-(
-    id             SERIAL PRIMARY KEY,
-    prompt_content TEXT,
-    price          DOUBLE PRECISION DEFAULT 1000,
-    note           INTEGER DEFAULT 0
-        CONSTRAINT prompts_note_check
-            CHECK (note >= -10 AND note <= 10),
-    status         VARCHAR(10) DEFAULT 'pending'
-        CONSTRAINT prompts_status_check
-            CHECK (status IN ('active', 'inactive', 'pending', 'review', 'reminder', 'delete')),
-    created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    user_info      VARCHAR(20)
-        REFERENCES public.users (username)
-);
-
-
--- Create notes table if it does not exist
-CREATE TABLE IF NOT EXISTS public.notes
-(
-    id         SERIAL PRIMARY KEY,
-    prompt_id  INTEGER
-        REFERENCES public.prompts (id)
-        ON DELETE CASCADE,
-    user_info  VARCHAR(20)
-        REFERENCES public.users (username),
-    note_value DOUBLE PRECISION
-);
-
-
--- Create votes table if it does not exist
-CREATE TABLE IF NOT EXISTS public.votes
-(
-    id         SERIAL PRIMARY KEY,
-    prompt_id  INTEGER
-        REFERENCES public.prompts (id)
-        ON DELETE CASCADE,
-    user_info  VARCHAR(20)
-        REFERENCES public.users (username),
-    vote_value INTEGER
-);
-
-"""
+# create_table = """
+#
+# -- Create admins table if it does not exist
+# CREATE TABLE IF NOT EXISTS public.admins
+# (
+#     username        VARCHAR(20) NOT NULL
+#         PRIMARY KEY,
+#     firstname       VARCHAR(25),
+#     lastname        VARCHAR(25),
+#     hashed_password VARCHAR(300)
+# );
+#
+#
+# -- Create groups table if it does not exist
+# CREATE TABLE IF NOT EXISTS public.groups
+# (
+#     id         SERIAL PRIMARY KEY,
+#     group_name VARCHAR(25) NOT NULL UNIQUE,
+#     admin_info VARCHAR(20)
+#         REFERENCES public.admins (username)
+# );
+#
+#
+# -- Create users table if it does not exist
+# CREATE TABLE IF NOT EXISTS public.users
+# (
+#     username        VARCHAR(20) NOT NULL
+#         PRIMARY KEY,
+#     firstname       VARCHAR(25),
+#     lastname        VARCHAR(25),
+#     hashed_password VARCHAR(300),
+#     group_id        INTEGER
+#         REFERENCES public.groups (id),
+#     admin_info      VARCHAR(20)
+#         REFERENCES public.admins (username)
+# );
+#
+#
+# -- Create prompts table if it does not exist
+# CREATE TABLE IF NOT EXISTS public.prompts
+# (
+#     id             SERIAL PRIMARY KEY,
+#     prompt_content TEXT,
+#     price          DOUBLE PRECISION DEFAULT 1000,
+#     note           INTEGER DEFAULT 0
+#         CONSTRAINT prompts_note_check
+#             CHECK (note >= -10 AND note <= 10),
+#     status         VARCHAR(10) DEFAULT 'pending'
+#         CONSTRAINT prompts_status_check
+#             CHECK (status IN ('active', 'inactive', 'pending', 'review', 'reminder', 'delete')),
+#     created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+#     user_info      VARCHAR(20)
+#         REFERENCES public.users (username)
+# );
+#
+#
+# -- Create notes table if it does not exist
+# CREATE TABLE IF NOT EXISTS public.notes
+# (
+#     id         SERIAL PRIMARY KEY,
+#     prompt_id  INTEGER
+#         REFERENCES public.prompts (id)
+#         ON DELETE CASCADE,
+#     user_info  VARCHAR(20)
+#         REFERENCES public.users (username),
+#     note_value DOUBLE PRECISION
+# );
+#
+#
+# -- Create votes table if it does not exist
+# CREATE TABLE IF NOT EXISTS public.votes
+# (
+#     id         SERIAL PRIMARY KEY,
+#     prompt_id  INTEGER
+#         REFERENCES public.prompts (id)
+#         ON DELETE CASCADE,
+#     user_info  VARCHAR(20)
+#         REFERENCES public.users (username),
+#     vote_value INTEGER
+# );
+#
+# """
 LOC_DB_NAME = "promptprojectdb"
 HEROKU_DB_NAME = "d3svebcrtcq9m"
 
 db = get_db_connection()
+curs = db.cursor()
+
+with open("backend/create_db_querry.sql", "r") as sql_file:
+    create_table = sql_file.read()
+    curs.execute(create_table)
+db.commit()
+print("Tables crees avec succès !")
+
+with open("backend/init_db.sql", "r") as sql_file:
+    init_values = sql_file.read()
+    curs.execute(init_values)
+db.commit()
+print("Valeurs initialises avec sucees")
+
+
+# curs.execute(create_table)
+
 
 # Define the querry
 select_all_users_querry = """SELECT * FROM users"""
@@ -310,7 +327,7 @@ def send_prompt(sender, passw, receiver, subject, msg):
         raise
 
 
-curs = db.cursor()
+# curs = db.cursor()
 dict_curs = db.cursor(cursor_factory=psycopg2.extras.DictCursor)  # This cursor return a list of list --> [[],[]...]
 
 curs.execute(select_all_users_querry)  # Getting all users in user's table
@@ -336,6 +353,9 @@ all_admins_hashed_pass = curs.fetchall()
 # select prompts information
 dict_curs.execute(select_all_prompt_info_querry)
 all_selected_prompts = dict_curs.fetchall()
+all_selected_prompts_with_group = [
+    {**prompt, 'categorie': get_prompt_owner(prompt['id'])} for prompt in all_selected_prompts
+]
 
 #  Transform tuple data to list data
 all_users_hashed_pass_list = transform_tuple_to_list(all_users_hashed_pass)
