@@ -94,13 +94,13 @@ HEROKU_DB_NAME = "d3svebcrtcq9m"
 db = get_db_connection()
 curs = db.cursor()
 
-with open("backend/create_db_querry.sql", "r") as sql_file:
+with open("create_db_querry.sql", "r") as sql_file:
     create_table = sql_file.read()
     curs.execute(create_table)
 db.commit()
 print("Tables crees avec succès !")
 
-with open("backend/init_db.sql", "r") as sql_file:
+with open("init_db.sql", "r") as sql_file:
     init_values = sql_file.read()
     curs.execute(init_values)
 db.commit()
