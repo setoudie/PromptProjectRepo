@@ -12,7 +12,7 @@ function DashboardText() {
       textAlign="center"
       mt="10"
     >
-      Prompt Dashboard
+      Prompts Dashboard
     </Text>
   );
 }

@@ -8,7 +8,8 @@ const PromptGrid = () => {
     const [error, setError] = useState(null); // État pour gérer les erreurs
 
     useEffect(() => {
-        const url = "http://127.0.0.1:5000/prompts/dashboard";
+        const url = "http://127.0.0.1:5000/prompts/dashboard"
+;
 
         const fetchPrompts = async () => {
             setLoading(true); // Indique que le chargement commence

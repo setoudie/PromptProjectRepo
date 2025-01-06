@@ -34,7 +34,7 @@ def create_prompt():
 
     user_info = get_jwt_identity()
     username_user = user_info.get('username')
-    # print(username_user)
+    print(user_info)
 
     if content:
         curs.execute("""INSERT INTO prompts (prompt_content, user_info) VALUES (%s, %s)""", (content, username_user))
